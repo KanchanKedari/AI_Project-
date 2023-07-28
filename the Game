@@ -1,0 +1,103 @@
+def display_board(game_board):                 #display the current state of board
+    print("Current state of Board : \n\n");
+    for i in range(0, 9):
+      if((i>0) and (i%3==0)):
+        print("\n");
+      if(game_board[i]==0):
+        print("_ ",end = " ");
+      if(game_board[i]==-1):
+        print("X ",end = " ");
+      if(game_board[i]==1):
+        print("O ",end = " ");
+    print("\n\n");
+
+def User1_turn(game_board):
+    pos = input("\nEnter X position [1,2,3,....,9]");
+    pos = int(pos);        #typecasting
+    if(game_board[pos-1]!=0):
+      print("Wrong Move");
+      exit(0);
+    game_board[pos-1] = -1;
+
+def User2_turn(game_board):
+    pos = input("\nEnter O position [1,2,3,....,9]");
+    pos = int(pos);        #typecasting
+    if(game_board[pos-1]!=0):
+      print("Wrong Move");
+      exit(0);
+    game_board[pos-1] = 1;
+def minmax(game_board,player):
+    x = analyse_board(game_board);
+    if(x!=0):
+      return(x*player);
+    pos = -1;
+    value = -2;
+    for i in range(0, 9):
+      if(game_board[i]==0):
+        game_board[i] = player;
+        score = -minmax(game_board, player*-1);
+        game_board[i] = 0;
+        if(score>value):
+          value = score;
+          pos = i;
+    if(pos==-1):
+      return 0;
+    return value;        #backtracking
+def Comp_turn(game_board):
+    pos = -1;
+    value = -2;
+    for i in range(0, 9):
+      if(game_board[i]==0):
+        game_board[i] = 1;
+        score = -minmax(game_board, -1);       #min max algorithm
+        game_board[i] = 0;
+        if(score>value):
+          value = score;
+          pos = i;
+    game_board[pos] = 1;
+def analyse_board(game_board):
+    wl = [[0, 1, 2] , [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8],[2, 4, 6]];         #to check win/lose (list in which positions win is possible)
+    #iterate on each and every sub-list
+    for i in range (0, 8):
+      if (game_board[wl[i][0]]!=0 and game_board[wl[i][0]] == game_board[wl[i][1]] and game_board[wl[i][0]] == game_board[wl[i][2]] ):     #checking
+        return game_board[wl[i][0]];           #if the above list is true then the someone has won
+
+    return 0;
+def main():     #defining main function
+    ch = input("Enter 1 for single player, 2 for multiplayer :");
+    ch = int(ch);        #typecasting
+    game_board = [0, 0, 0, 0, 0, 0 ,0 , 0, 0];       #numeric representation of game board
+    if(ch==1):       #against AI
+      print("Comp : O VS You : X");
+      player = input("Enter 1 to  play 1st or 2 to play 2nd : ");
+      player = int(player);        #typecasting
+      for i in range (0, 9):
+        if(analyse_board(game_board)!=0):             #to analyze whether P1 won/P2 won/it is a draw
+          break;         #end for loop
+        if((i+player)%2==0):
+          Comp_turn(game_board);
+        else:
+          display_board(game_board);       #display the current state of board
+          User1_turn(game_board);          #to know what the earlier player played
+
+    else:
+      for i in range (0, 9):
+       if(analyse_board(game_board)!=0):             #to analyze whether P1 won/P2 won/it is a draw
+        break;         #end for loop
+       if(i%2==0):
+          display_board(game_board);       #as we have two users now
+          User1_turn(game_board);
+       else:
+          display_board(game_board);
+          User2_turn(game_board);
+
+    x = analyse_board(game_board);                 #to analyze whether P1 won/P2 won/it is a draw
+    if(x==0):
+      display_board(game_board);
+      print("Draw!");
+    if(x==-1):
+      display_board(game_board);
+      print("Player X wins!! Player O loses");
+    if(x==1):
+      display_board(game_board);
+      print("Player O wins!! Player X loses");
